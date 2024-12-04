@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Table with Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .form-container {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CRUD Table with Search</h1>
+
+    <!-- Search Bar -->
+    <input type="text" id="searchBar" placeholder="Search by name..." onkeyup="searchTable()">
+
+    <!-- Add/Edit Form -->
+    <div class="form-container">
+        <input type="text" id="nameInput" placeholder="Name">
+        <input type="number" id="ageInput" placeholder="Age">
+        <button onclick="addItem()">Add</button>
+        <button onclick="updateItem()">Update</button>
+    </div>
+
+    <!-- Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Rows will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        let data = [
+            { id: 1, name: "Alice", age: 25 },
+            { id: 2, name: "Bob", age: 30 },
+            { id: 3, name: "Charlie", age: 35 }
+        ];
+        let editId = null;
+
+        // Function to render the table
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.age}</td>
+                    <td>
+                        <button onclick="editItem(${item.id})">Edit</button>
+                        <button onclick="deleteItem(${item.id})">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to add a new item
+        function addItem() {
+            const name = document.getElementById('nameInput').value;
+            const age = parseInt(document.getElementById('ageInput').value);
+            if (!name || isNaN(age)) {
+                alert('Please provide valid inputs.');
+                return;
+            }
+
+            const id = data.length ? data[data.length - 1].id + 1 : 1;
+            data.push({ id, name, age });
+            renderTable();
+            clearInputs();
+        }
+
+        // Function to edit an item
+        function editItem(id) {
+            const item = data.find(d => d.id === id);
+            if (item) {
+                editId = id;
+                document.getElementById('nameInput').value = item.name;
+                document.getElementById('ageInput').value = item.age;
+            }
+        }
+
+        // Function to update an item
+        function updateItem() {
+            if (editId === null) {
+                alert('No item selected for update.');
+                return;
+            }
+
+            const name = document.getElementById('nameInput').value;
+            const age = parseInt(document.getElementById('ageInput').value);
+            if (!name || isNaN(age)) {
+                alert('Please provide valid inputs.');
+                return;
+            }
+
+            const item = data.find(d => d.id === editId);
+            if (item) {
+                item.name = name;
+                item.age = age;
+                renderTable();
+                clearInputs();
+                editId = null;
+            }
+        }
+
+        // Function to delete an item
+        function deleteItem(id) {
+            data = data.filter(d => d.id !== id);
+            renderTable();
+        }
+
+        // Function to search the table
+        function searchTable() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const tableBody = document.getElementById('tableBody');
+            const rows = tableBody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const name = row.children[1].textContent.toLowerCase();
+                if (name.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Function to clear input fields
+        function clearInputs() {
+            document.getElementById('nameInput').value = '';
+            document.getElementById('ageInput').value = '';
+        }
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
